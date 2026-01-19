@@ -1,0 +1,6 @@
+athlete_id,exercise,date,weight_kg,sets,reps,rpe
+1,Bench Press,2024-01-01,80,4,8,7
+1,Squat,2024-01-01,100,4,10,8
+1,Deadlift,2024-01-02,120,3,5,9
+2,Bench Press,2024-01-01,60,3,10,6
+2,Squat,2024-01-01,80,3,12,7

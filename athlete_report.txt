@@ -1,0 +1,237 @@
+
+=== Barbell Row (Athlete ATH001) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Bench Press (Athlete ATH001) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Deadlift (Athlete ATH001) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Overhead Press (Athlete ATH001) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Pull-up (Athlete ATH001) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Squat (Athlete ATH001) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Bench Press (Athlete ATH002) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Deadlift (Athlete ATH002) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Overhead Press (Athlete ATH002) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Squat (Athlete ATH002) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Barbell Row (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Bench Press (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Deadlift (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Overhead Press (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 📈 Accumulation phase — expect gradual improvement.
+- 💡 Recommendation: Maintain current plan and monitor progress.
+- Overall status: neutral
+
+=== Pull-up (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Squat (Athlete ATH003) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Barbell Row (Athlete ATH004) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Bench Press (Athlete ATH004) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Deadlift (Athlete ATH004) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Overhead Press (Athlete ATH004) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Pull-up (Athlete ATH004) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Squat (Athlete ATH004) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Barbell Row (Athlete ATH005) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Bench Press (Athlete ATH005) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Deadlift (Athlete ATH005) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Overhead Press (Athlete ATH005) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+=== Pull-up (Athlete ATH005) ===
+- Load is increasing steadily — maintain intensity and focus on form.
+- Weekly volume is increasing steadily — maintain current plan. If athlete reports fatigue, consider active recovery or slight deloads.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- ✅ Strong progress observed — keep current approach.
+- 💡 Recommendation: Continue current plan, gradually increase weights while keeping reps consistent, and focus on recovery.
+- Overall status: excellent_progress
+
+=== Squat (Athlete ATH005) ===
+- Load is stable — consider small variations (sets, reps, intensity) to stimulate adaptation.
+- Weekly volume is stable — consider adding small variations (sets, reps, intensity) to stimulate adaptation.
+- RPE is stable — training intensity is controlled, continue monitoring fatigue.
+- 💡 Recommendation: Introduce small variations in sets, reps, or intensity to stimulate adaptation.
+- Overall status: neutral
+
+--- Athlete ATH001 Summary ---
+✅ Strong progress on 4 exercise(s)
+⚠️ Monitor fatigue on 0 exercise(s)
+Neutral status on 2 exercise(s)
+
+--- Athlete ATH002 Summary ---
+✅ Strong progress on 2 exercise(s)
+⚠️ Monitor fatigue on 0 exercise(s)
+Neutral status on 2 exercise(s)
+
+--- Athlete ATH003 Summary ---
+✅ Strong progress on 5 exercise(s)
+⚠️ Monitor fatigue on 0 exercise(s)
+Neutral status on 1 exercise(s)
+
+--- Athlete ATH004 Summary ---
+✅ Strong progress on 3 exercise(s)
+⚠️ Monitor fatigue on 0 exercise(s)
+Neutral status on 3 exercise(s)
+
+--- Athlete ATH005 Summary ---
+✅ Strong progress on 1 exercise(s)
+⚠️ Monitor fatigue on 0 exercise(s)
+Neutral status on 5 exercise(s)
