@@ -59,8 +59,16 @@ class DataEnricher:
         """Add personalized RPE analysis based on athlete profile"""
         rpe_tolerance = profile.get_rpe_tolerance()
         
-        # RPE deviation from baseline
-        df['rpe_deviation'] = df['rpe'] - profile.baseline_rpe
+        # RPE deviation from baseline - handle both raw and processed data
+        if 'rpe' in df.columns:
+            df['rpe_deviation'] = df['rpe'] - profile.baseline_rpe
+            rpe_values = df['rpe']
+        elif 'avg_rpe' in df.columns:
+            df['rpe_deviation'] = df['avg_rpe'] - profile.baseline_rpe
+            rpe_values = df['avg_rpe']
+        else:
+            # Skip RPE analysis if no RPE data available
+            return df
         
         # Personalized RPE zones
         def get_rpe_zone(rpe):
@@ -73,18 +81,19 @@ class DataEnricher:
             else:
                 return 'critical_intensity'
         
-        df['rpe_zone'] = df['rpe'].apply(get_rpe_zone)
+        df['rpe_zone'] = rpe_values.apply(get_rpe_zone)
         
         # Personalized fatigue risk score
         def calculate_fatigue_risk(row):
             base_risk = 0
             
-            # RPE-based risk
-            if row['rpe'] > rpe_tolerance['critical']:
+            # RPE-based risk - handle both raw and processed data
+            rpe_value = row['rpe'] if 'rpe' in row.index else row.get('avg_rpe', 5)
+            if rpe_value > rpe_tolerance['critical']:
                 base_risk += 3
-            elif row['rpe'] > rpe_tolerance['high']:
+            elif rpe_value > rpe_tolerance['high']:
                 base_risk += 2
-            elif row['rpe'] > rpe_tolerance['moderate']:
+            elif rpe_value > rpe_tolerance['moderate']:
                 base_risk += 1
             
             # Recovery profile adjustment
