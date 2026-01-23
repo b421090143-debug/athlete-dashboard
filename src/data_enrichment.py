@@ -171,7 +171,7 @@ class DataEnricher:
         
         def get_relative_intensity(row):
             exercise = row['exercise']
-            weight = row['weight_kg']
+            weight = row['weight_kg'] if 'weight_kg' in row.index else row.get('avg_weight', 0)
             
             # Map exercise to max strength
             exercise_map = {
