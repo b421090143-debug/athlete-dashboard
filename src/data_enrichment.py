@@ -127,19 +127,21 @@ class DataEnricher:
             current_risks = []
             
             # Check exercise-specific risks
+            rpe_value = row['rpe'] if 'rpe' in row.index else row.get('avg_rpe', 5)
+            
             if 'deadlift_risk' in risk_factors and 'deadlift' in exercise:
                 current_risks.append('lower_back')
-                if row['rpe'] > 8:
+                if rpe_value > 8:
                     df.at[idx, 'injury_risk_flag'] = 'high'
             
             if 'squat_risk' in risk_factors and 'squat' in exercise:
                 current_risks.append('knee')
-                if row['rpe'] > 8.5:
+                if rpe_value > 8.5:
                     df.at[idx, 'injury_risk_flag'] = 'high'
             
             if 'overhead_risk' in risk_factors and any(x in exercise for x in ['overhead', 'press']):
                 current_risks.append('shoulder')
-                if row['rpe'] > 8:
+                if rpe_value > 8:
                     df.at[idx, 'injury_risk_flag'] = 'high'
             
             df.at[idx, 'risk_factors'] = current_risks
