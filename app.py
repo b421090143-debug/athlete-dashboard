@@ -35,11 +35,17 @@ def validate_data(df):
     # Strip whitespace from column names
     df.columns = df.columns.str.strip()
     
-    required_columns = ['athlete_id', 'exercise', 'date', 'weight_kg', 'sets', 'reps', 'rpe']
-    missing_columns = [col for col in required_columns if col not in df.columns]
+    # Accept both raw and processed data formats
+    raw_columns = ['athlete_id', 'exercise', 'date', 'weight_kg', 'sets', 'reps', 'rpe']
+    processed_columns = ['athlete_id', 'exercise', 'date', 'week', 'total_load', 'total_volume', 'avg_rpe', 'avg_weight', 'total_sets']
     
-    if missing_columns:
-        return False, f"Missing required columns: {', '.join(missing_columns)}. Found columns: {', '.join(df.columns.tolist())}"
+    # Check for either format
+    if all(col in df.columns for col in raw_columns):
+        required_columns = raw_columns
+    elif all(col in df.columns for col in processed_columns):
+        required_columns = processed_columns
+    else:
+        return False, f"Data must contain either raw format columns: {', '.join(raw_columns)} OR processed format columns: {', '.join(processed_columns)}. Found columns: {', '.join(df.columns.tolist())}"
 
     # Check for missing values in required columns
     missing_values = df[required_columns].isnull().sum()
