@@ -19,19 +19,28 @@ def compute_weekly_metrics(df: pd.DataFrame) -> pd.DataFrame:
     if 'week' not in df.columns:
         df = add_week_column(df)
     
-    # Calculate volume (sets * reps * weight) and load (volume * RPE)
-    df['volume'] = df['weight_kg'] * df['sets'] * df['reps']
-    df['load'] = df['volume'] * df['rpe']
+    # Check if data is already processed (has aggregated columns)
+    if all(col in df.columns for col in ['total_load', 'total_volume', 'avg_rpe', 'avg_weight', 'total_sets']):
+        # Data is already processed, just return it
+        return df
     
-    # Group by athlete, exercise, and week to calculate weekly metrics
-    weekly_metrics = df.groupby(['athlete_id', 'exercise', 'week']).agg({
-        'load': 'sum',
-        'volume': 'sum',
-        'rpe': 'mean',
-        'weight_kg': 'mean',
-        'sets': 'sum',
-        'date': 'first'  # Keep the first date of the week for reference
-    }).reset_index()
+    # Calculate volume and load for raw data
+    if all(col in df.columns for col in ['weight_kg', 'sets', 'reps', 'rpe']):
+        df['volume'] = df['weight_kg'] * df['sets'] * df['reps']
+        df['load'] = df['volume'] * df['rpe']
+        
+        # Group by athlete, exercise, and week to calculate weekly metrics
+        weekly_metrics = df.groupby(['athlete_id', 'exercise', 'week']).agg({
+            'load': 'sum',
+            'volume': 'sum',
+            'rpe': 'mean',
+            'weight_kg': 'mean',
+            'sets': 'sum',
+            'date': 'first'  # Keep the first date of the week for reference
+        }).reset_index()
+    else:
+        # Missing required columns for raw processing
+        raise ValueError("Data must contain either raw format (weight_kg, sets, reps, rpe) or processed format (total_load, total_volume, avg_rpe, avg_weight, total_sets)")
     
     # Rename columns for clarity
     weekly_metrics = weekly_metrics.rename(columns={
