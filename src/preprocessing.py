@@ -20,7 +20,8 @@ def compute_weekly_metrics(df: pd.DataFrame) -> pd.DataFrame:
         df = add_week_column(df)
     
     # Check if data is already processed (has aggregated columns)
-    if all(col in df.columns for col in ['total_load', 'total_volume', 'avg_rpe', 'avg_weight', 'total_sets']):
+    processed_columns = ['total_load', 'total_volume', 'avg_rpe', 'avg_weight', 'total_sets']
+    if all(col in df.columns for col in processed_columns):
         # Data is already processed, just return it
         return df
     

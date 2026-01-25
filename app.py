@@ -6,6 +6,7 @@ from src.preprocessing import add_week_column, compute_weekly_metrics, analyze_e
 from src.athlete_profiles import search_athletes, get_athlete_profile
 from src.data_enrichment import enrich_athlete_data, calculate_personalized_metrics
 from src.insights_engine import generate_personalized_insights, generate_athlete_summary
+from src.recovery_tracking import RecoveryTracker
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
@@ -632,7 +633,7 @@ Key Insights:
             st.info(f"♻️ Recovery Profile: {profile.recovery_profile.title()}")
         
         # Tabs for different sections
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "📥 Export"])
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "📥 Export"])
         
         with tab1:  # Overview
             st.subheader(f"{profile.full_name} - Training Overview")
@@ -785,7 +786,80 @@ Key Insights:
             )
             st.plotly_chart(fig_rpe, use_container_width=True)
         
-        with tab5:  # Export
+        with tab5:  # Recovery Tracking
+            st.subheader(f"🔄 {profile.full_name} - Recovery & Fatigue Tracking")
+            
+            # Initialize recovery tracker
+            if 'recovery_tracker' not in st.session_state:
+                st.session_state.recovery_tracker = RecoveryTracker(st.session_state.athlete_df)
+            
+            recovery_tracker = st.session_state.recovery_tracker
+            recovery_dashboard = recovery_tracker.create_recovery_dashboard(athlete_id)
+            
+            # Recovery Score Card
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                recovery_score = recovery_dashboard['recovery_score']
+                score_color = {
+                    'excellent': '🟢',
+                    'good': '🟡', 
+                    'moderate': '🟠',
+                    'poor': '🔴',
+                    'critical': '🚨'
+                }.get(recovery_score['status'], '⚪')
+                
+                st.markdown(f"### {score_color} Recovery Score")
+                st.metric("Score", f"{recovery_score['score']}/100")
+                st.metric("Status", recovery_score['status'].title())
+            
+            with col2:
+                st.markdown("### 📊 Load Factors")
+                st.metric("Load Trend", f"{recovery_score['factors']['load_trend']:.3f}")
+                st.metric("Avg Load", f"{recovery_score['factors']['avg_load']:.1f}")
+                st.metric("Variability", f"{recovery_score['factors']['load_variability']:.1f}")
+            
+            with col3:
+                st.markdown("### 💡 Recommendations")
+                for i, rec in enumerate(recovery_dashboard['recommendations'][:3]):
+                    st.markdown(f"{i+1}. {rec}")
+            
+            # ACWR Visualization
+            st.markdown("### 📈 Acute:Chronic Workload Ratio")
+            acwr_fig = recovery_tracker.create_recovery_visualization(athlete_id)
+            st.plotly_chart(acwr_fig, use_container_width=True)
+            
+            # Recent ACWR Data
+            acwr_data = recovery_dashboard['acwr_data']
+            if len(acwr_data) > 0:
+                recent_acwr = acwr_data.tail(7)
+                
+                st.markdown("### 📋 Recent ACWR Analysis")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.dataframe(
+                        recent_acwr[['date', 'acwr', 'fatigue_zone']].rename(columns={
+                            'date': 'Date',
+                            'acwr': 'ACWR', 
+                            'fatigue_zone': 'Fatigue Zone'
+                        }),
+                        use_container_width=True
+                    )
+                
+                with col2:
+                    # Fatigue zone distribution
+                    zone_counts = recent_acwr['fatigue_zone'].value_counts()
+                    fig_zones = px.bar(
+                        x=zone_counts.index,
+                        y=zone_counts.values,
+                        title="Fatigue Zone Distribution (Last 7 Days)"
+                    )
+                    fig_zones.update_xaxes(title="Fatigue Zone")
+                    fig_zones.update_yaxes(title="Days")
+                    st.plotly_chart(fig_zones, use_container_width=True)
+        
+        with tab6:  # Export
             st.subheader(f"📥 Export {profile.full_name} Results")
             
             # Export personalized insights
