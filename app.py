@@ -7,6 +7,7 @@ from src.athlete_profiles import search_athletes, get_athlete_profile
 from src.data_enrichment import enrich_athlete_data, calculate_personalized_metrics
 from src.insights_engine import generate_personalized_insights, generate_athlete_summary
 from src.recovery_tracking import RecoveryTracker
+from src.progressive_overload import ProgressiveOverloadTracker
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
@@ -633,7 +634,7 @@ Key Insights:
             st.info(f"♻️ Recovery Profile: {profile.recovery_profile.title()}")
         
         # Tabs for different sections
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "📥 Export"])
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "💪 Progressive Overload", "📥 Export"])
         
         with tab1:  # Overview
             st.subheader(f"{profile.full_name} - Training Overview")
@@ -859,7 +860,87 @@ Key Insights:
                     fig_zones.update_yaxes(title="Days")
                     st.plotly_chart(fig_zones, use_container_width=True)
         
-        with tab6:  # Export
+        with tab6:  # Progressive Overload
+            st.subheader(f"💪 {profile.full_name} - Progressive Overload Analysis")
+            
+            # Initialize progressive overload tracker
+            if 'progressive_tracker' not in st.session_state:
+                st.session_state.progressive_tracker = ProgressiveOverloadTracker(st.session_state.athlete_df)
+            
+            progressive_tracker = st.session_state.progressive_tracker
+            overload_dashboard = progressive_tracker.create_progressive_overload_dashboard(athlete_id)
+            
+            # Exercise selector
+            all_exercises = list(st.session_state.athlete_df['exercise'].unique())
+            selected_exercise = st.selectbox("Select Exercise", ["All Exercises"] + all_exercises)
+            
+            # Strength Velocity Summary
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                if overload_dashboard['strength_velocity']['status'] == 'calculated':
+                    velocity_data = overload_dashboard['strength_velocity']
+                    st.markdown("### 🚀 Strength Velocity")
+                    st.metric("Avg Gain/Week", f"{velocity_data['avg_velocity_kg_per_week']:.2f} kg")
+                    st.metric("Best Exercise", velocity_data.get('best_exercise', 'N/A'))
+                else:
+                    st.markdown("### 🚀 Strength Velocity")
+                    st.info("Insufficient data for velocity analysis")
+            
+            with col2:
+                st.markdown("### 📊 Volume Analysis")
+                volume_data = overload_dashboard['volume_progression']
+                if 'TOTAL' in volume_data['exercise'].values:
+                    total_volume = volume_data[volume_data['exercise'] == 'TOTAL']
+                    if len(total_volume) > 1:
+                        recent_volume = total_volume['volume'].iloc[-1]
+                        prev_volume = total_volume['volume'].iloc[-2] if len(total_volume) > 1 else recent_volume
+                        volume_change = ((recent_volume - prev_volume) / prev_volume * 100) if prev_volume > 0 else 0
+                        st.metric("Recent Volume", f"{recent_volume:,.0f}")
+                        st.metric("Volume Change", f"{volume_change:+.1f}%")
+            
+            with col3:
+                st.markdown("### ⚠️ Plateau Detection")
+                plateaus = overload_dashboard['plateau_analysis']['plateaus']
+                if plateaus:
+                    st.metric("Plateaus Detected", len(plateaus))
+                    st.metric("Most Critical", plateaus[0]['exercise'] if plateaus else "None")
+                else:
+                    st.metric("Plateaus Detected", 0)
+                    st.metric("Status", "✅ Clear")
+            
+            # Volume Progression Chart
+            st.markdown("### 📈 Volume Progression")
+            if selected_exercise == "All Exercises":
+                volume_chart = progressive_tracker.create_volume_progression_chart(athlete_id)
+            else:
+                volume_chart = progressive_tracker.create_volume_progression_chart(athlete_id, selected_exercise)
+            st.plotly_chart(volume_chart, use_container_width=True)
+            
+            # Strength Velocity Chart
+            st.markdown("### 💪 Strength Gain Velocity")
+            strength_chart = progressive_tracker.create_strength_velocity_chart(athlete_id)
+            if len(strength_chart.data) > 0:
+                st.plotly_chart(strength_chart, use_container_width=True)
+            else:
+                st.info("Insufficient data for strength velocity analysis")
+            
+            # Recommendations
+            st.markdown("### 💡 Progressive Overload Recommendations")
+            recommendations = overload_dashboard['recommendations']
+            for i, rec in enumerate(recommendations):
+                st.markdown(f"{i+1}. {rec}")
+            
+            # Detailed Plateau Analysis
+            if overload_dashboard['plateau_analysis']['plateaus']:
+                st.markdown("### 🔍 Plateau Analysis Details")
+                plateau_df = pd.DataFrame(overload_dashboard['plateau_analysis']['plateaus'])
+                st.dataframe(
+                    plateau_df[['exercise', 'type', 'severity', 'recommendation']],
+                    use_container_width=True
+                )
+        
+        with tab7:  # Export
             st.subheader(f"📥 Export {profile.full_name} Results")
             
             # Export personalized insights
