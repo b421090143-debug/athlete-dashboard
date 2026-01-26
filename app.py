@@ -8,6 +8,7 @@ from src.data_enrichment import enrich_athlete_data, calculate_personalized_metr
 from src.insights_engine import generate_personalized_insights, generate_athlete_summary
 from src.recovery_tracking import RecoveryTracker
 from src.progressive_overload import ProgressiveOverloadTracker
+from src.coaching_engine import CoachingEngine
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
@@ -634,7 +635,7 @@ Key Insights:
             st.info(f"♻️ Recovery Profile: {profile.recovery_profile.title()}")
         
         # Tabs for different sections
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "💪 Progressive Overload", "📥 Export"])
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "💪 Progressive Overload", "🎯 Coaching Directives", "📥 Export"])
         
         with tab1:  # Overview
             st.subheader(f"{profile.full_name} - Training Overview")
@@ -940,7 +941,91 @@ Key Insights:
                     use_container_width=True
                 )
         
-        with tab7:  # Export
+        with tab7:  # Coaching Directives
+            st.subheader(f"🎯 {profile.full_name} - Professional Coaching Directives")
+            
+            # Initialize coaching engine
+            if 'coaching_engine' not in st.session_state:
+                st.session_state.coaching_engine = CoachingEngine(st.session_state.athlete_df, profile.__dict__)
+            
+            coaching_engine = st.session_state.coaching_engine
+            directives = coaching_engine.generate_coaching_directives()
+            
+            # Performance Status
+            st.markdown("### 📊 Performance Status")
+            perf_status = directives['performance_status']
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Strength Progression", perf_status['current_status']['strength_progression'].title())
+                st.metric("Competition Readiness", perf_status['current_status']['competition_readiness'].replace('_', ' ').title())
+            
+            with col2:
+                st.metric("Strength Gain Rate", f"{perf_status['key_metrics']['strength_gain_rate_kg_week']} kg/week")
+            
+            with col3:
+                if perf_status['current_limitations']:
+                    st.metric("Limitations", len(perf_status['current_limitations']))
+                    for limitation in perf_status['current_limitations']:
+                        st.caption(f"• {limitation.replace('_', ' ').title()}")
+                else:
+                    st.metric("Limitations", "None Identified")
+            
+            # Primary Focus Areas
+            if directives['primary_focus_areas']:
+                st.markdown("### 🎯 Primary Focus Areas")
+                for i, focus in enumerate(directives['primary_focus_areas'], 1):
+                    with st.expander(f"{i}. {focus['area']} (Priority: {focus['priority'].title()})"):
+                        st.markdown(f"**Objective:** {focus['objective']}")
+                        st.markdown(f"**Frequency:** {focus['prescription']['frequency']}")
+                        st.markdown("**Exercises:**")
+                        for exercise in focus['prescription']['exercises']:
+                            st.markdown(f"- {exercise['name']}: {exercise['sets']}×{exercise['reps']}")
+                        st.markdown(f"**Progression Rule:** {focus['prescription']['progression_rule']}")
+            
+            # Training Adjustments
+            if directives['training_adjustments']:
+                st.markdown("### ⚙️ Training Adjustments")
+                for i, adjustment in enumerate(directives['training_adjustments'], 1):
+                    with st.expander(f"{i}. {adjustment['adjustment_type'].replace('_', ' ').title()}"):
+                        st.markdown(f"**Objective:** {adjustment['objective']}")
+                        st.markdown(f"**Action:** {adjustment['prescription']['action']}")
+                        st.markdown(f"**Method:** {adjustment['prescription']['method']}")
+            
+            # Risk Management
+            if directives['risk_management']:
+                st.markdown("### ⚠️ Risk Management")
+                for i, risk in enumerate(directives['risk_management'], 1):
+                    with st.expander(f"{i}. {risk['risk_type'].replace('_', ' ').title()} (Severity: {risk['severity'].title()})"):
+                        st.markdown("**Interventions:**")
+                        for intervention in risk['interventions']:
+                            st.markdown(f"- {intervention['exercise']}: {intervention['sets']}×{intervention['reps']}")
+                        
+                        st.markdown("**Temporary Adjustment:**")
+                        st.markdown(f"- Action: {risk['temporary_adjustment']['action']}")
+                        st.markdown(f"- Duration: {risk['temporary_adjustment']['duration']}")
+            
+            # Sport-Specific Programming
+            st.markdown("### 🏆 Sport-Specific Programming")
+            sport_prog = directives['sport_specific_programming']
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"**Sport:** {sport_prog['sport']}")
+                st.markdown(f"**Competition Focus:** {sport_prog['competition_focus']}")
+                st.markdown(f"**Event Practice Frequency:** {sport_prog['event_specialization']['frequency']}")
+            
+            with col2:
+                st.markdown("**Events:**")
+                for event in sport_prog['event_specialization']['events']:
+                    st.markdown(f"- {event['name']}: {event['sessions']} sessions (Focus: {event['focus']})")
+            
+            # Progression Rules
+            st.markdown("**Progression Rules:**")
+            for rule, description in sport_prog['event_specialization']['progression_rules'].items():
+                st.markdown(f"- {rule.replace('_', ' ').title()}: {description}")
+        
+        with tab8:  # Export
             st.subheader(f"📥 Export {profile.full_name} Results")
             
             # Export personalized insights
