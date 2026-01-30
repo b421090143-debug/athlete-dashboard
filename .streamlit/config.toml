@@ -8,7 +8,11 @@ enableCaching = false
 gatherUsageStats = false
 
 [theme]
-base = "light"
+base = "dark"
+primaryColor = "#1f77b4"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#1a1a1a"
+textColor = "#ffffff"
 
 [client]
 caching = false
