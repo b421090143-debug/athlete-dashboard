@@ -2,9 +2,13 @@
 port = 8501
 headless = true
 enableCORS = false
+enableCaching = false
 
 [browser]
 gatherUsageStats = false
 
 [theme]
 base = "light"
+
+[client]
+caching = false
