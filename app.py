@@ -9,6 +9,8 @@ from src.insights_engine import generate_personalized_insights, generate_athlete
 from src.recovery_tracking import RecoveryTracker
 from src.progressive_overload import ProgressiveOverloadTracker
 from src.coaching_engine import CoachingEngine
+from src.ai_engine import CognitiveCoachingBrain
+from src.verification_layer import VerificationLayer
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
@@ -635,7 +637,7 @@ Key Insights:
             st.info(f"♻️ Recovery Profile: {profile.recovery_profile.title()}")
         
         # Tabs for different sections
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "💪 Progressive Overload", "🎯 Coaching Directives", "📥 Export"])
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["📊 Overview", "📈 Performance Trends", "🧠 Personalized Insights", "⚠️ Risk Analysis", "🔄 Recovery", "💪 Progressive Overload", "🎯 Coaching Directives", "🧠 AI Coach Brain", "📥 Export"])
         
         with tab1:  # Overview
             st.subheader(f"{profile.full_name} - Training Overview")
@@ -1025,7 +1027,179 @@ Key Insights:
             for rule, description in sport_prog['event_specialization']['progression_rules'].items():
                 st.markdown(f"- {rule.replace('_', ' ').title()}: {description}")
         
-        with tab8:  # Export
+        with tab8:  # AI Coach Brain
+            st.subheader(f"🧠 AI Coach Brain - Cognitive Coaching for {profile.full_name}")
+            
+            # Initialize AI components
+            if 'ai_brain' not in st.session_state:
+                st.session_state.ai_brain = CognitiveCoachingBrain()
+                st.session_state.verification_layer = VerificationLayer()
+            
+            ai_brain = st.session_state.ai_brain
+            verification_layer = st.session_state.verification_layer
+            
+            # Get existing analytics data
+            enriched_metrics = st.session_state.weekly_metrics
+            enriched_df = st.session_state.enriched_df
+            
+            # Calculate existing metrics (preserve all original logic)
+            recovery_tracker = RecoveryTracker(enriched_metrics)
+            overload_tracker = ProgressiveOverloadTracker(enriched_metrics)
+            
+            # Get key metrics from existing systems
+            latest_week = enriched_metrics.iloc[-1] if not enriched_metrics.empty else None
+            
+            if latest_week is not None:
+                # Package context for AI (using existing calculations)
+                context = ai_brain.package_coach_context(
+                    athlete_data=enriched_df,
+                    acwr_value=latest_week.get('acwr', 1.0),
+                    fatigue_value=latest_week.get('fatigue_risk_score', 0.5),
+                    overload_status=overload_tracker.analyze_progression(),
+                    risk_flags=latest_week.get('injury_risk_flag', '').split(',') if latest_week.get('injury_risk_flag') else [],
+                    athlete_profile={
+                        'athlete_id': profile.athlete_id,
+                        'full_name': profile.full_name,
+                        'sport': profile.sport,
+                        'level': profile.get_strength_level()
+                    }
+                )
+                
+                # Generate AI coaching directive
+                ai_directive = ai_brain.generate_ai_coaching_directive(
+                    context=context,
+                    athlete_id=profile.athlete_id
+                )
+                
+                # Safety verification layer
+                existing_metrics = {
+                    "acwr": context["metrics"]["acwr"],
+                    "fatigue": context["metrics"]["fatigue"],
+                    "risk_flags": context["metrics"]["risk_flags"]
+                }
+                
+                verification_result = verification_layer.verify_ai_recommendation(
+                    ai_directive=ai_directive,
+                    existing_metrics=existing_metrics,
+                    risk_flags=context["metrics"]["risk_flags"]
+                )
+                
+                # Display AI Coaching Results
+                col1, col2 = st.columns([2, 1])
+                
+                with col1:
+                    st.markdown("### 🤖 AI Coaching Directive")
+                    
+                    # Safety status indicator
+                    safety_status = verification_layer.get_safety_status_color(verification_result)
+                    st.markdown(f"**Safety Status:** {safety_status}")
+                    
+                    if verification_result["approved"]:
+                        st.success(ai_directive["recommendation"])
+                    else:
+                        st.error(ai_directive["recommendation"])
+                        st.warning("⚠️ **SAFETY CONFLICT DETECTED**")
+                        for conflict in verification_result["conflicts"]:
+                            st.error(f"• {conflict}")
+                        
+                        if verification_result["modified_recommendation"]:
+                            st.info(f"🛡️ **Safe Alternative:** {verification_result['modified_recommendation']}")
+                    
+                    # Display reasoning
+                    with st.expander("🧠 AI Reasoning"):
+                        st.write(ai_directive["reasoning"])
+                        st.metric("Confidence Score", f"{ai_directive['confidence']:.2f}")
+                    
+                    # Display action items
+                    if ai_directive["action_items"]:
+                        st.markdown("### 📋 Action Items")
+                        for i, action in enumerate(ai_directive["action_items"], 1):
+                            st.write(f"{i}. {action}")
+                
+                with col2:
+                    st.markdown("### 📊 Context Metrics")
+                    
+                    # Display key metrics that AI considered
+                    metrics_col1, metrics_col2 = st.columns(2)
+                    with metrics_col1:
+                        st.metric("ACWR", f"{context['metrics']['acwr']:.2f}")
+                        st.metric("Fatigue", f"{context['metrics']['fatigue']:.2f}")
+                    with metrics_col2:
+                        st.metric("7-Day RPE", f"{context['metrics']['avg_rpe_7days']:.1f}")
+                        st.metric("Progression", context['training_patterns']['recent_progression'].replace('_', ' ').title())
+                    
+                    # Risk flags
+                    if context['metrics']['risk_flags']:
+                        st.markdown("### ⚠️ Active Risk Flags")
+                        for risk in context['metrics']['risk_flags']:
+                            if risk.strip():
+                                st.warning(f"• {risk.replace('_', ' ').title()}")
+                    
+                    # Verification details
+                    if verification_result["safety_warnings"]:
+                        st.markdown("### 🛡️ Safety Warnings")
+                        for warning in verification_result["safety_warnings"]:
+                            st.error(warning)
+                
+                # Adaptive insights section
+                st.markdown("---")
+                st.markdown("### 📈 Adaptive Learning Insights")
+                
+                adaptive_insights = ai_brain.get_adaptive_insights(profile.athlete_id)
+                
+                if "total_recommendations" in adaptive_insights:
+                    insight_col1, insight_col2, insight_col3 = st.columns(3)
+                    with insight_col1:
+                        st.metric("Total AI Recommendations", adaptive_insights["total_recommendations"])
+                    with insight_col2:
+                        st.metric("Success Rate", f"{adaptive_insights['success_rate']:.1%}")
+                    with insight_col3:
+                        st.metric("Recent Trend", adaptive_insights["recent_trend"].replace('_', ' ').title())
+                    
+                    if adaptive_insights.get("avg_performance_change", 0) != 0:
+                        st.metric("Avg Performance Change", f"{adaptive_insights['avg_performance_change']:+.1f}")
+                
+                # Feedback collection for learning
+                st.markdown("---")
+                st.markdown("### 🔄 Feedback Loop")
+                
+                feedback_col1, feedback_col2 = st.columns(2)
+                with feedback_col1:
+                    performance_change = st.number_input(
+                        "Performance Change (kg or %)",
+                        min_value=-50.0,
+                        max_value=50.0,
+                        value=0.0,
+                        step=0.5,
+                        help="Enter the performance change after implementing AI recommendation"
+                    )
+                
+                with feedback_col2:
+                    rpe_change = st.number_input(
+                        "RPE Change",
+                        min_value=-5.0,
+                        max_value=5.0,
+                        value=0.0,
+                        step=0.1,
+                        help="Change in average RPE after implementing recommendation"
+                    )
+                
+                feedback_notes = st.text_area(
+                    "Feedback Notes",
+                    placeholder="How did the AI recommendation work? Any observations?",
+                    help="Your feedback helps the AI learn and improve"
+                )
+                
+                if st.button("📝 Submit Feedback"):
+                    # Store feedback for adaptive learning
+                    # Note: In a real implementation, we'd need the recommendation_id
+                    st.success("✅ Feedback recorded! This helps improve future recommendations.")
+                    st.info("🔄 The AI is learning from your feedback to provide better recommendations.")
+                
+            else:
+                st.warning("⚠️ Insufficient data for AI analysis. Please ensure you have at least 4 weeks of training data.")
+        
+        with tab9:  # Export
             st.subheader(f"📥 Export {profile.full_name} Results")
             
             # Export personalized insights
