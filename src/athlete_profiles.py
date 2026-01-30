@@ -265,3 +265,53 @@ def search_athletes(query: str) -> List[AthleteProfile]:
         List of matching AthleteProfile objects
     """
     return athlete_registry.search_athletes(query)
+
+def build_fallback_profile(athlete_id: str, training_df: Optional[pd.DataFrame] = None) -> AthleteProfile:
+    sport = 'Strength'
+    baseline_rpe = 7
+    training_age_years = 1.0
+
+    if training_df is not None and not training_df.empty:
+        if 'exercise' in training_df.columns:
+            ex = set(training_df['exercise'].dropna().astype(str).unique().tolist())
+            strongman_markers = {
+                'Log Press',
+                'Yoke Walk',
+                "Farmer's Walk",
+                'Atlas Stone Load',
+                'Sandbag Carry',
+                'Stone Loading',
+            }
+            if any(e in strongman_markers for e in ex):
+                sport = 'Strongman'
+
+        if 'rpe' in training_df.columns:
+            rpe = pd.to_numeric(training_df['rpe'], errors='coerce').dropna()
+            if len(rpe) > 0:
+                baseline_rpe = float(rpe.mean())
+                baseline_rpe = max(5.5, min(9.5, baseline_rpe))
+
+        if 'date' in training_df.columns:
+            dates = pd.to_datetime(training_df['date'], errors='coerce').dropna()
+            if len(dates) > 1:
+                span_days = (dates.max() - dates.min()).days
+                training_age_years = max(0.5, min(6.0, span_days / 365.0))
+
+    profile_data = {
+        'athlete_id': athlete_id,
+        'full_name': f'Athlete {athlete_id}',
+        'age': 28,
+        'gender': '',
+        'height_cm': 0,
+        'weight_kg': 0,
+        'sport': sport,
+        'training_age_years': training_age_years,
+        'injury_history': [],
+        'preferred_exercises': [],
+        'baseline_rpe': baseline_rpe,
+        'performance_level': 'intermediate',
+        'max_strength': {},
+        'training_goals': ['Improve strength', 'Improve conditioning'],
+        'recovery_profile': 'normal'
+    }
+    return AthleteProfile(profile_data)

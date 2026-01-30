@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-from src.athlete_profiles import get_athlete_profile, AthleteProfile
+from src.athlete_profiles import get_athlete_profile, AthleteProfile, build_fallback_profile
 
 class DataEnricher:
     """Enriches training data with athlete-specific context and personalized metrics"""
@@ -28,7 +28,7 @@ class DataEnricher:
         """
         profile = get_athlete_profile(athlete_id)
         if not profile:
-            return training_df
+            profile = build_fallback_profile(athlete_id=athlete_id, training_df=training_df)
         
         enriched_df = training_df.copy()
         

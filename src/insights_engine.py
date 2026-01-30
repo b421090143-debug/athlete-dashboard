@@ -57,7 +57,7 @@ class PersonalizedInsightsEngine:
         """
         profile = get_athlete_profile(athlete_id)
         if not profile:
-            return ["Athlete profile not found. Please register athlete profile to get personalized insights."]
+            profile = self._build_fallback_profile(enriched_df, athlete_id)
         
         metrics = calculate_personalized_metrics(enriched_df, athlete_id)
         insights = []
@@ -71,6 +71,59 @@ class PersonalizedInsightsEngine:
         insights.extend(self._generate_personalized_recommendations(profile, metrics))
         
         return insights
+
+    def _build_fallback_profile(self, enriched_df: pd.DataFrame, athlete_id: str) -> AthleteProfile:
+        sport = "Strength"
+        if 'exercise' in enriched_df.columns:
+            ex = set(enriched_df['exercise'].dropna().astype(str).unique().tolist())
+            strongman_markers = {
+                'Log Press',
+                'Yoke Walk',
+                "Farmer's Walk",
+                'Atlas Stone Load',
+                'Sandbag Carry',
+            }
+            if any(e in strongman_markers for e in ex):
+                sport = "Strongman"
+
+        baseline_rpe = 7
+        if 'rpe' in enriched_df.columns and len(enriched_df) > 0:
+            try:
+                baseline_rpe = float(pd.to_numeric(enriched_df['rpe'], errors='coerce').dropna().mean())
+                if pd.isna(baseline_rpe):
+                    baseline_rpe = 7
+                baseline_rpe = max(5.5, min(9.5, baseline_rpe))
+            except Exception:
+                baseline_rpe = 7
+
+        training_age_years = 1.0
+        if 'date' in enriched_df.columns and len(enriched_df) > 1:
+            try:
+                dates = pd.to_datetime(enriched_df['date'], errors='coerce').dropna()
+                if len(dates) > 1:
+                    span_days = (dates.max() - dates.min()).days
+                    training_age_years = max(0.5, min(6.0, span_days / 365.0))
+            except Exception:
+                training_age_years = 1.0
+
+        profile_data = {
+            'athlete_id': athlete_id,
+            'full_name': f"Athlete {athlete_id}",
+            'age': 28,
+            'gender': '',
+            'height_cm': 0,
+            'weight_kg': 0,
+            'sport': sport,
+            'training_age_years': training_age_years,
+            'injury_history': [],
+            'preferred_exercises': [],
+            'baseline_rpe': baseline_rpe,
+            'performance_level': 'intermediate',
+            'max_strength': {},
+            'training_goals': ['Improve strength', 'Improve conditioning'],
+            'recovery_profile': 'normal'
+        }
+        return AthleteProfile(profile_data)
     
     def _analyze_fatigue_risk(self, profile: AthleteProfile, metrics: Dict[str, Any]) -> List[str]:
         """Analyze fatigue risk and generate personalized recommendations"""
@@ -205,19 +258,7 @@ class PersonalizedInsightsEngine:
         """
         profile = get_athlete_profile(athlete_id)
         if not profile:
-            # Return a basic summary if profile not found
-            return {
-                'athlete_profile': {
-                    'athlete_id': athlete_id,
-                    'full_name': 'Unknown Athlete',
-                    'sport': 'Unknown',
-                    'strength_level': 'unknown'
-                },
-                'training_metrics': calculate_personalized_metrics(enriched_df, athlete_id),
-                'key_insights': ['Athlete profile not found. Basic analysis only.'],
-                'performance_status': 'needs_profile',
-                'coaching_priorities': ['Complete athlete profile registration']
-            }
+            profile = self._build_fallback_profile(enriched_df, athlete_id)
         
         metrics = calculate_personalized_metrics(enriched_df, athlete_id)
         
