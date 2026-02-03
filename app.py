@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import logging
 from datetime import datetime
 from src.preprocessing import add_week_column, compute_weekly_metrics, analyze_exercise_trends, generate_llm_facts
 from src.athlete_profiles import search_athletes, get_athlete_profile, build_fallback_profile
@@ -11,9 +12,12 @@ from src.progressive_overload import ProgressiveOverloadTracker
 from src.coaching_engine import CoachingEngine
 from src.ai_engine import CognitiveCoachingBrain
 from src.verification_layer import VerificationLayer
+from src.decision_layer import compute_decision_layer_output
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
+
+logger = logging.getLogger(__name__)
 
 # Set page config
 st.set_page_config(
@@ -58,6 +62,34 @@ def validate_data(df):
         return False, f"Missing values found in: {missing_values[missing_values > 0].to_dict()}"
     
     return True, "Data validated successfully"
+
+
+@st.cache_data(show_spinner=False, ttl=300)
+def _cached_decision_layer_output(athlete_id: str, weekly_metrics: pd.DataFrame, metrics: dict, coach_tag: str):
+    """Cached wrapper around the experimental decision layer.
+
+    Safety design:
+    - Cached to avoid recomputation on UI reruns.
+    - If the decision layer throws for any reason, return None (keep dashboard functional).
+    """
+
+    try:
+        if weekly_metrics is None:
+            return None
+
+        # Cache a minimal subset to reduce hashing overhead.
+        keep_cols = [c for c in ["athlete_id", "week", "total_load", "avg_rpe"] if c in weekly_metrics.columns]
+        wm = weekly_metrics[keep_cols].copy() if keep_cols else weekly_metrics.copy()
+
+        return compute_decision_layer_output(
+            athlete_id=athlete_id,
+            weekly_metrics=wm,
+            metrics=metrics or {},
+            coach_tag=(coach_tag or None),
+        )
+    except Exception as e:
+        logger.exception("Decision layer wrapper failed: %s", str(e))
+        return None
 
 def format_insights(insights):
     """Format insights for display"""
@@ -142,11 +174,22 @@ def main():
                     st.markdown("---")
                     st.subheader("🎯 Quick Select")
                     athlete_options = sorted(df_preview['athlete_id'].dropna().astype(str).unique().tolist())
-                    quick_choice = st.selectbox("Select athlete from uploaded file:", [""] + athlete_options)
-                    if quick_choice:
+                    prior_selected = str(st.session_state.get('selected_athlete') or "")
+                    quick_options = [""] + athlete_options
+                    quick_index = 0
+                    if prior_selected and prior_selected in athlete_options:
+                        quick_index = athlete_options.index(prior_selected) + 1
+
+                    quick_choice = st.selectbox(
+                        "Select athlete from uploaded file:",
+                        quick_options,
+                        index=quick_index,
+                        key="quick_select_athlete",
+                    )
+
+                    if quick_choice and quick_choice != prior_selected:
                         st.session_state.selected_athlete = quick_choice
                         st.session_state.search_performed = True
-                        st.rerun()
             except Exception:
                 pass
 
@@ -165,38 +208,61 @@ def main():
             # Display search results
             if search_query and search_button:
                 with st.spinner("Searching athletes..."):
-                    search_results = search_athletes(search_query)
-                    
-                    if search_results:
-                        st.success(f"Found {len(search_results)} athlete(s)")
-                        
-                        # Display search results as selectable cards
-                        for i, athlete in enumerate(search_results):
-                            with st.container():
-                                col1, col2 = st.columns([3, 1])
-                                
-                                with col1:
-                                    # Athlete info card
-                                    st.markdown(f"""
-                                    **{athlete.full_name}**  
-                                    🏷️ `{athlete.athlete_id}` | 🎯 {athlete.sport} | 📊 {athlete.get_strength_level().title()}
-                                    """)
-                                
-                                with col2:
-                                    # Select button
-                                    if st.button(f"Select", key=f"select_{athlete.athlete_id}"):
-                                        st.session_state.selected_athlete = athlete.athlete_id
-                                        st.session_state.search_performed = True
-                                        st.rerun()
-                                
-                                st.markdown("---")
+                    query = str(search_query).strip().lower()
+                    df_preview = st.session_state.get('uploaded_df_preview')
+                    uploaded_matches = []
+                    if df_preview is not None and 'athlete_id' in df_preview.columns:
+                        all_ids = sorted(df_preview['athlete_id'].dropna().astype(str).unique().tolist())
+                        uploaded_matches = [aid for aid in all_ids if query in aid.lower()]
+
+                    if uploaded_matches:
+                        st.success(f"Found {len(uploaded_matches)} athlete(s) in uploaded file")
+                        for aid in uploaded_matches[:20]:
+                            col1, col2 = st.columns([3, 1])
+                            with col1:
+                                st.markdown(f"🏷️ `{aid}`")
+                            with col2:
+                                if st.button("Select", key=f"select_uploaded_{aid}"):
+                                    st.session_state.selected_athlete = aid
+                                    st.session_state.search_performed = True
                     else:
-                        st.error("No athletes found. Try searching by ID or name.")
+                        search_results = search_athletes(search_query)
+
+                        if search_results:
+                            st.success(f"Found {len(search_results)} athlete(s)")
+
+                            # Display search results as selectable cards
+                            for i, athlete in enumerate(search_results):
+                                with st.container():
+                                    col1, col2 = st.columns([3, 1])
+
+                                    with col1:
+                                        # Athlete info card
+                                        st.markdown(f"""
+                                        **{athlete.full_name}**  
+                                        🏷️ `{athlete.athlete_id}` | 🎯 {athlete.sport} | 📊 {athlete.get_strength_level().title()}
+                                        """)
+
+                                    with col2:
+                                        # Select button
+                                        if st.button(f"Select", key=f"select_{athlete.athlete_id}"):
+                                            st.session_state.selected_athlete = athlete.athlete_id
+                                            st.session_state.search_performed = True
+
+                                    st.markdown("---")
+                        else:
+                            st.error("No athletes found. Try searching by ID or name.")
             
             # Display selected athlete profile
             if 'selected_athlete' in st.session_state and st.session_state.selected_athlete:
                 selected_athlete_id = st.session_state.selected_athlete
                 profile = get_athlete_profile(selected_athlete_id)
+                if not profile:
+                    df_preview = st.session_state.get('uploaded_df_preview')
+                    athlete_df_preview = None
+                    if df_preview is not None and 'athlete_id' in df_preview.columns:
+                        athlete_df_preview = df_preview[df_preview['athlete_id'].astype(str) == str(selected_athlete_id)].copy()
+                    profile = build_fallback_profile(selected_athlete_id, athlete_df_preview)
                 
                 if profile:
                     st.markdown("---")
@@ -224,7 +290,7 @@ def main():
         
         # Process button
         if uploaded_file is not None:
-            if 'selected_athlete' in st.session_state:
+            if st.session_state.get('selected_athlete'):
                 st.success("Data loaded and athlete selected!")
                 
                 if st.button("🚀 Generate Personalized Analysis", type="primary"):
@@ -690,6 +756,45 @@ Key Insights:
             with col4:
                 status = athlete_summary['performance_status'].replace('_', ' ').title()
                 st.metric("Performance Status", status)
+
+            # Experimental Decision Layer (Beta) - additive, feature-flagged, collapsible.
+            with st.expander("🧪 Experimental: Decision Layer (Beta)", expanded=False):
+                if str(os.getenv("ENABLE_DECISION_LAYER", "0")).strip().lower() not in {"1", "true", "yes", "on"}:
+                    st.caption("Disabled by default. Set `ENABLE_DECISION_LAYER=1` to enable.")
+                else:
+                    coach_tag = st.selectbox(
+                        "Coach intent tag (optional)",
+                        ["", "ACCUMULATION", "DELOAD", "TAPER"],
+                        index=0,
+                        help="Optional: used only to guide the experimental decision layer. If empty, it is ignored.",
+                        key="decision_layer_tag",
+                    )
+
+                    decision_out = _cached_decision_layer_output(
+                        str(selected_athlete_id),
+                        st.session_state.get("weekly_metrics"),
+                        metrics,
+                        str(coach_tag or ""),
+                    )
+
+                    if not decision_out:
+                        st.info("Insufficient data: decision layer unavailable.")
+                    else:
+                        c1, c2, c3, c4 = st.columns([1.2, 1, 1, 1])
+                        with c1:
+                            st.metric("Decision", decision_out.get("decision", "MAINTAIN"))
+                        with c2:
+                            st.metric("Risk", decision_out.get("risk_level", "MEDIUM"))
+                        with c3:
+                            st.metric("Confidence", f"{float(decision_out.get('confidence', 0.0)):.2f}")
+                        with c4:
+                            st.caption("Read-only. Does not change any existing metrics.")
+
+                        reasons = decision_out.get("reasons") or []
+                        if reasons:
+                            st.markdown("**Reasons / Signals**")
+                            for r in reasons:
+                                st.write(f"- {r}")
         
         with tab2:  # Performance Trends
             st.subheader(f"{profile.full_name} - Performance Trends")
