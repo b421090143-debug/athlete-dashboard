@@ -737,7 +737,23 @@ Key Insights:
             
             # Add athlete context columns to display
             display_metrics = enriched_metrics.copy()
-            display_metrics['rpe_zone'] = st.session_state.enriched_df.groupby(['week', 'exercise'])['rpe_zone'].first().reset_index()['rpe_zone']
+            try:
+                enriched_df_for_zones = st.session_state.get('enriched_df')
+                if enriched_df_for_zones is not None:
+                    if 'week' not in enriched_df_for_zones.columns and 'date' in enriched_df_for_zones.columns:
+                        enriched_df_for_zones = add_week_column(enriched_df_for_zones.copy())
+
+                    required_zone_cols = {'week', 'exercise', 'rpe_zone'}
+                    required_join_cols = {'week', 'exercise'}
+                    if required_zone_cols.issubset(set(enriched_df_for_zones.columns)) and required_join_cols.issubset(set(display_metrics.columns)):
+                        zone_map = (
+                            enriched_df_for_zones
+                            .groupby(['week', 'exercise'], as_index=False)['rpe_zone']
+                            .first()
+                        )
+                        display_metrics = display_metrics.merge(zone_map, on=['week', 'exercise'], how='left')
+            except Exception:
+                pass
             
             st.dataframe(display_metrics, use_container_width=True)
             
