@@ -407,6 +407,16 @@ def main():
     # Display results if data is processed
     if 'processed_all' in st.session_state and st.session_state.processed_all:
         st.header("👥 Team Performance Analytics - All Athletes")
+
+        # Safe mode switch: allow returning to single-athlete analysis without reloading the app.
+        if st.button("↩️ Return to Single Athlete Mode", type="secondary"):
+            for k in [
+                'processed_all',
+                'all_athletes_data',
+                'all_athletes_summaries',
+            ]:
+                st.session_state.pop(k, None)
+            st.rerun()
         
         # Team overview metrics
         all_athletes_summaries = st.session_state.all_athletes_summaries
